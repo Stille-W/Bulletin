@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  mysql-server:
+    image: mysql:8.0
+    container_name: mysql-server
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "3306:3306"
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - bulletin-net
+
+  bulletin-app:
+    build: .
+    container_name: bulletin-app
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql-server
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    networks:
+      - bulletin-net
+
+volumes:
+  mysql_data:
+
+networks:
+  bulletin-net:
+    driver: bridge
